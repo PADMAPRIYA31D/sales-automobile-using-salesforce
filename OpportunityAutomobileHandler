@@ -1,0 +1,25 @@
+public class Opportunity_AutomobileHandler {
+    public static void quantityErrorOnAutomobileInformation(List<Opportunity_Automobile__c> lstOpportunityAutomobile) {
+        Set<Id> AutomobileIds = new Set<Id>();
+        for (Opportunity_Automobile__c oppAutomobile : lstOpportunityAutomobile) {
+            if (oppAutomobile.Automobile__c != null) {
+                AutomobileIds.add(oppAutomobile.Automobile__c);
+            }
+        }
+        List<Automobile_c> lstAutomobile = [SELECT Id, Quantityc FROM Automobile_c WHERE Id IN :AutomobileIds];
+        Map<Id, Automobile_c> mapAutomobile = new Map<Id, Automobile_c>();
+        for (Automobile__c automobile : lstAutomobile) {
+            mapAutomobile.put(automobile.Id, automobile);
+        }
+        for (Opportunity_Automobile__c oppAutomobile : lstOpportunityAutomobile) {
+            if (oppAutomobile.Automobile__c != null) {
+                Automobile_c automobile = mapAutomobile.get(oppAutomobile.Automobile_c);
+                if (automobile != null) {
+                    if (oppAutomobile.Quantity_c <= 0 || oppAutomobile.Quantityc > automobile.Quantity_c) {
+                        oppAutomobile.addError('Quantity cannot be zero or greater than the quantity in Automobile');
+                    }
+                }
+            }
+        }
+    }
+}
